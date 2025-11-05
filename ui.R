@@ -25,6 +25,7 @@ library(DT)
 library(fresh)
 library(shinyBS)
 library(shinyWidgets)
+library(ggplot2)
 
 
 # Couleur de la thématique
@@ -221,17 +222,24 @@ ui <- dashboardPage(
                     box(
                       title = "Plot1", status = "primary", solidHeader = TRUE,
                       collapsible = TRUE,
-                      plotOutput("volcano_plot", height = 250)
+                      width = 16,
+                      plotOutput("volcano_plot",
+                                 width = "100%",
+                                 height = "60vh"),
+                      
+                      # Bouton pour télécharger le volcanoplot
+                      downloadButton("download_volcano", "Télécharger le plot PDF"),
                     ),
                   ),
                   
-                  
+    
                   # Table des gènes
                   fluidRow(
                     box(
                       title = "Table", status = "warning", solidHeader = TRUE,
                       collapsible = TRUE,
-                      DT::dataTableOutput("gene_table", width = "100%")
+                      width = 16,
+                      DT::dataTableOutput("gene_table", height = "25vh")
                     )
                   )
                 )

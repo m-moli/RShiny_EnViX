@@ -45,19 +45,32 @@ server <- function(input, output) {
     )
   })
   
-  # Volcano plot
+  # -- Volcano plot --
+  
+  volcano_plot <- reactive({
+    data <- inputData()
+    if (is.null(data)) return(NULL)
+    
+    ggplot(data, aes(x = data$log2FC, y = -log10(data$padj))) +
+      geom_point(alpha = 0.6, color = "grey") +
+      geom_vline(xintercept = c(-input$log2FCslider, input$log2FCslider), 
+                 linetype = "dashed", color = "purple") +
+      geom_hline(yintercept = input$pvalueslider, 
+                 linetype = "dashed", color = "purple") +
+      labs(
+        x = "log2(Fold Change)",
+        y = "-log10(padj)",
+        title = "Volcano Plot"
+      ) +
+      theme_minimal(base_size = 14)
+  })
   
   output$volcano_plot <- renderPlot({
-    data <- inputData()
-    
-    plot(
-      x=data$log2FC, y=-log10(data$padj),
-      xlab = "log2(FC)",
-      ylab = "-log10(padj)",
-      main = "Volcano Plot",
-      pch = 19, cex = 0.6, col = "grey50"
-    )
+    volcano_plot()
   })
+  
+  
+  # -- Téléchargements --
   
   output$downloadData <- downloadHandler(
     filename = "example.csv",
@@ -65,12 +78,14 @@ server <- function(input, output) {
       write.csv(mtcars, file)
     }
   )
+  
+  output$download_volcano <- downloadHandler(
+    filename = function() {
+      paste0("volcano-plot-", Sys.Date(), ".pdf")
+    },
+    
+    content = function(file) {
+      ggsave(file, reactive_volcano(), device = "pdf", width = 10, height = 5, units = "in")
+    }
+  )
 }
-
-# ui <- fluidPage(
-#  fileInput("file1", "Choose CSV File",
-#            accept = c("text/csv",
-#                       "text/comma-separated-values,
-#                       .csv"))
-#)
-
