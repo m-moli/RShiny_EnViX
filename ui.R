@@ -77,7 +77,7 @@ ui <- dashboardPage(
       
       # Caractéristique 1 ("Whole data inspection", par exemple)
       menuItem(
-        "Caractéristique 1", 
+        "Inspection générale", 
         tabName = "feature1", 
         icon = icon("th")),
       
@@ -169,7 +169,7 @@ ui <- dashboardPage(
       
       # Caractéristique 1
       tabItem(tabName = "feature1",
-              h2("Caractéristique 1"),
+              h2("Inspection générale des données"),
               # Boxes need to be put in a row (or column)
               
               fluidRow(
@@ -180,24 +180,6 @@ ui <- dashboardPage(
                 ),
                 
                 box(
-                  title = "Plot2", status = "primary", solidHeader = TRUE,
-                  collapsible = TRUE,
-                  plotOutput("plot2", height = 250)
-                )
-              ),
-              
-              fluidRow(
-                box(
-                  title = "Table", status = "warning", solidHeader = TRUE,
-                  collapsible = TRUE,
-                  width = 6,
-                  
-                  # Tracer la table des gènes récupérée en input
-                  DT::dataTableOutput("gene_table",  width = "100%"),
-                  
-                ),
-                
-                box(
                   title = "Paramètres", status = "danger", solidHeader = TRUE,
                   chooseSliderSkin(skin = "Shiny", color = "purple"),
                   sliderInput("log2FCslider", "seuil |log2FC|", min = 0, max = 5, value = 2.5, step = 0.5),
@@ -205,6 +187,18 @@ ui <- dashboardPage(
                   verbatimTextOutput("value"),
                   width = "3",
                 )
+              ),
+              
+              fluidRow(
+                box(
+                  title = "Table", status = "warning", solidHeader = TRUE,
+                  collapsible = TRUE,
+                  # width = "100%",
+                  
+                  # Tracer la table des gènes récupérée en input
+                  DT::dataTableOutput("gene_table",  width = "100%"),
+                  
+                ),
               ),
               
               downloadButton("downloadData", "Télécharger ici"),
