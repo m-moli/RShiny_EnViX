@@ -210,8 +210,19 @@ ui <- dashboardPage(
                               value = 2.5, 
                               step = 0.1),
 
-                  
-                  downloadButton("downloadData", "Télécharger ici")
+                # Checkbox pour colorier les gènes 'significatifs'
+                
+                checkboxInput("color_by_de",
+                              "Colorier les gènes significatifs",
+                              TRUE),
+            
+                
+                # Checkbox pour afficher les seuils (|log2FC| et adjpval) sur le VolcanoPlot
+                
+                checkboxInput("display_threshold_lines",
+                              "Afficher les seuils choisis sur le graphe",
+                              TRUE),
+                
                 ),
                 
                 # Main Panel pour les graphiques et tables

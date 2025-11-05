@@ -51,8 +51,15 @@ server <- function(input, output) {
     data <- inputData()
     if (is.null(data)) return(NULL)
     
-    ggplot(data, aes(x = data$log2FC, y = -log10(data$padj))) +
-      geom_point(alpha = 0.6, color = "grey") +
+    # Définir les couleurs du plot
+    
+    colors_volcano_plot <- rep("grey", nrow(data))  # par défaut gris
+    colors_volcano_plot[data$log2FC >= input$log2FCslider & data$padj <= 10^(-input$pvalueslider)] <- "violet"  # up
+    colors_volcano_plot[data$log2FC <= -input$log2FCslider & data$padj <= 10^(-input$pvalueslider)] <- "pink" # down
+      
+    ggplot(data, aes(x = log2FC, y = -log10(padj),
+                     color = colors_volcano_plot)) +
+      geom_point(alpha = 0.6, size = 1.5, color = colors_volcano_plot) +
       geom_vline(xintercept = c(-input$log2FCslider, input$log2FCslider), 
                  linetype = "dashed", color = "purple") +
       geom_hline(yintercept = input$pvalueslider, 
@@ -62,7 +69,7 @@ server <- function(input, output) {
         y = "-log10(padj)",
         title = "Volcano Plot"
       ) +
-      theme_minimal(base_size = 14)
+      theme_minimal(base_size = 17)
   })
   
   output$volcano_plot <- renderPlot({
@@ -81,11 +88,11 @@ server <- function(input, output) {
   
   output$download_volcano <- downloadHandler(
     filename = function() {
-      paste0("volcano-plot-", Sys.Date(), ".pdf")
+      paste0("volcano-plot", ".pdf")
     },
     
     content = function(file) {
-      ggsave(file, reactive_volcano(), device = "pdf", width = 10, height = 5, units = "in")
+      ggplot2::ggsave(file, reactive_volcano(), device = "pdf", width = 10, height = 5, units = "in")
     }
   )
 }
