@@ -45,6 +45,20 @@ server <- function(input, output) {
     )
   })
   
+  # Volcano plot
+  
+  output$volcano_plot <- renderPlot({
+    data <- inputData()
+    
+    plot(
+      x=data$log2FC, y=-log10(data$padj),
+      xlab = "log2(FC)",
+      ylab = "-log10(padj)",
+      main = "Volcano Plot",
+      pch = 19, cex = 0.6, col = "grey50"
+    )
+  })
+  
   output$downloadData <- downloadHandler(
     filename = "example.csv",
     content = function(file) {

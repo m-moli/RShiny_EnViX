@@ -167,42 +167,80 @@ ui <- dashboardPage(
               )
       ),
       
-      # Caractéristique 1
+      #################################
+      #################################
+
+      #################################
+      #################################
+      
+      
+      #################################
+      ############ TEST ###############
+      #################################
       tabItem(tabName = "feature1",
               h2("Inspection générale des données"),
-              # Boxes need to be put in a row (or column)
               
-              fluidRow(
-                box(
-                  title = "Plot1", status = "primary", solidHeader = TRUE,
-                  collapsible = TRUE,
-                  plotOutput("plot1", height = 250)
+              # Utilisation de sidebarLayout
+              fluidPage(
+                
+                sidebarLayout(
+          
+                # Side Panel contenant les contrôles
+                sidebarPanel(
+                width = 3, # Largeur de la barre latérale
+                  
+                  # Sliders pour les paramètres |log2FC| et p-value
+                  
+                  h4("Choisissez les paramètres"),
+                  
+                  chooseSliderSkin(skin = "Shiny", color = "purple"),
+      
+                  sliderInput("log2FCslider", 
+                              "seuil |log2FC|", 
+                              min = 0, 
+                              max = 5, 
+                              value = 2.5, 
+                              step = 0.5),
+                  
+                  sliderInput("pvalueslider", 
+                              "seuil p-value", 
+                              min = 0, 
+                              max = 5, 
+                              value = 2.5, 
+                              step = 0.1),
+
+                  
+                  downloadButton("downloadData", "Télécharger ici")
                 ),
                 
-                box(
-                  title = "Paramètres", status = "danger", solidHeader = TRUE,
-                  chooseSliderSkin(skin = "Shiny", color = "purple"),
-                  sliderInput("log2FCslider", "seuil |log2FC|", min = 0, max = 5, value = 2.5, step = 0.5),
-                  sliderInput("pvalueslider", "seuil p-value", min=0, max=5, value = 2.5, step = 0.1),
-                  verbatimTextOutput("value"),
-                  width = "3",
+                # Main Panel pour les graphiques et tables
+                mainPanel(
+                  
+                  # Volcano Plot
+                  fluidRow(
+                    box(
+                      title = "Plot1", status = "primary", solidHeader = TRUE,
+                      collapsible = TRUE,
+                      plotOutput("volcano_plot", height = 250)
+                    ),
+                  ),
+                  
+                  
+                  # Table des gènes
+                  fluidRow(
+                    box(
+                      title = "Table", status = "warning", solidHeader = TRUE,
+                      collapsible = TRUE,
+                      DT::dataTableOutput("gene_table", width = "100%")
+                    )
+                  )
                 )
-              ),
-              
-              fluidRow(
-                box(
-                  title = "Table", status = "warning", solidHeader = TRUE,
-                  collapsible = TRUE,
-                  # width = "100%",
-                  
-                  # Tracer la table des gènes récupérée en input
-                  DT::dataTableOutput("gene_table",  width = "100%"),
-                  
-                ),
-              ),
-              
-              downloadButton("downloadData", "Télécharger ici"),
+              )
+            )
       ),
+      #################################
+      ############ TEST ###############
+      #################################
       
       # Caractéristique 2
       tabItem(tabName = "feature2",
