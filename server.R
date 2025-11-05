@@ -57,9 +57,7 @@ server <- function(input, output) {
     colors_volcano_plot[data$log2FC >= input$log2FCslider & data$padj <= 10^(-input$pvalueslider)] <- "violet"  # up
     colors_volcano_plot[data$log2FC <= -input$log2FCslider & data$padj <= 10^(-input$pvalueslider)] <- "pink" # down
       
-    ggplot(data, aes(x = log2FC, y = -log10(padj),
-                     color = colors_volcano_plot)) +
-      geom_point(alpha = 0.6, size = 1.5, color = colors_volcano_plot) +
+    volcano <- ggplot(data, aes(x = log2FC, y = -log10(padj))) +
       geom_vline(xintercept = c(-input$log2FCslider, input$log2FCslider), 
                  linetype = "dashed", color = "purple") +
       geom_hline(yintercept = input$pvalueslider, 
@@ -70,7 +68,19 @@ server <- function(input, output) {
         title = "Volcano Plot"
       ) +
       theme_minimal(base_size = 17)
+    
+    # Ajouter les points selon la checkbox "color_by_significant_genes"
+    if (input$color_by_significant_genes) {
+      volcano <- volcano + geom_point(alpha = 0.6, size = 1.5, color = colors_volcano_plot)
+    } else {
+      volcano <- volcano + geom_point(alpha = 0.6, size = 1.5, color = "grey")
+    }
+    
+    volcano
+    
   })
+  
+  
   
   output$volcano_plot <- renderPlot({
     volcano_plot()

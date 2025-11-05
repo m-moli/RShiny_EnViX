@@ -212,7 +212,7 @@ ui <- dashboardPage(
 
                 # Checkbox pour colorier les gènes 'significatifs'
                 
-                checkboxInput("color_by_de",
+                checkboxInput("color_by_significant_genes",
                               "Colorier les gènes significatifs",
                               TRUE),
             
