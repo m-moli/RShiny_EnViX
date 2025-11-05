@@ -18,6 +18,8 @@
 ########################################
 
 library(shiny)
+library(DT)
+
 
 # Définir la logique du server
 
@@ -31,11 +33,16 @@ server <- function(input, output) {
     if (is.null(inputFile)) {
       return(NULL)
     }
-    read.csv(inputFile$datapath, header = TRUE)
+    read.csv(inputFile$datapath, header = TRUE, sep=';')
   })
   
-  output$gene_table <- renderTable({
-    inputData()
+  output$gene_table <- DT::renderDataTable({
+    DT::datatable(
+      inputData(),
+      options = list(scrollX = TRUE,
+                     scrollY = "250px"),
+      width = "100%"
+    )
   })
   
   output$downloadData <- downloadHandler(

@@ -190,11 +190,10 @@ ui <- dashboardPage(
                 box(
                   title = "Table", status = "warning", solidHeader = TRUE,
                   collapsible = TRUE,
-                  tableOutput("table"),
                   width = 6,
                   
                   # Tracer la table des gènes récupérée en input
-                  tableOutput("gene_table")
+                  DT::dataTableOutput("gene_table",  width = "100%"),
                   
                 ),
                 
