@@ -34,7 +34,7 @@ library(ggrepel)
 main_theme = create_theme(
   adminlte_color(
     light_blue = "#8806ce",
-    red = "violet"
+    red = "#d473d4"
   )
 )
 
@@ -195,7 +195,8 @@ ui <- dashboardPage(
           
                 # Side Panel contenant les contrôles
                 sidebarPanel(
-                width = 3, # Largeur de la barre latérale
+                  
+                  width = 3, # Largeur de la barre latérale
                   
                   # Sliders pour les paramètres |log2FC| et p-value
                   
@@ -218,39 +219,46 @@ ui <- dashboardPage(
                               step = 0.1),
                 
                 # Personnalisation affichage du volcanoplot
-                
-                h4("Personnalisez le Volcano Plot"),
-                
-                # Checkbox pour colorier les gènes 'significatifs'
-                
-                checkboxInput("color_by_significant_genes",
-                              "Colorier les gènes significatifs",
-                              TRUE),
-            
-                
-                # Checkbox pour afficher les seuils (|log2FC| et adjpval) sur le VolcanoPlot
-                
-                checkboxInput("display_threshold_lines",
-                              "Afficher les seuils choisis sur le graphe",
-                              TRUE),
-                
-                # Checkbox pour afficher les labels des gènes significatifs
-                
-                checkboxInput("display_significant_labels",
-                              "Afficher les étiquettes des gènes significatifs",
-                              TRUE),
+                div(style = "border: 2px solid purple; border-radius: 8px; padding: 10px; background-color: #f8f0ff; margin-bottom: 10px;",
+                  h4("Personnalisez le Volcano Plot"),
+                  
+                  # Checkbox pour afficher les seuils (|log2FC| et adjpval) sur le VolcanoPlot
+                  
+                  checkboxInput("display_threshold_lines",
+                                "Afficher les seuils choisis",
+                                TRUE),
+                  
+                  # Checkbox pour colorier les gènes 'significatifs'
+                  
+                  checkboxInput("color_by_significant_genes",
+                                "Colorier les gènes significatifs / sélectionnés",
+                                TRUE),
+                  
+                  # Checkbox pour afficher les labels des gènes significatifs
+                  
+                  checkboxInput("display_significant_labels",
+                                "Afficher les étiquettes des gènes significatifs",
+                                TRUE),
+                ),
                 
                 actionButton(
                   inputId = "clear_selected_genes",
                   label = "Désélectionner les gènes du tableau",
-                  icon = icon("times-circle"),  # quelle icône choisir ?
-                  style = "margin-bottom: 10px; width: 100%;")
+                  icon = icon("times-circle"),  
+                  style = "margin-bottom: 10px; width: 100%;"),
                 
-                ),
+                textInput(
+                  inputId = "volcano_title",
+                  label = "Titre du Volcano Plot",
+                  placeholder="Saisissez un titre...")
+
+                ), 
                 
                 # Main Panel pour les graphiques et tables
                 
                 mainPanel(
+                  
+                  width = 9,
                   
                   # Volcano Plot
                   fluidRow(
@@ -267,24 +275,23 @@ ui <- dashboardPage(
                       downloadButton("download_volcano", "Télécharger le plot PDF"),
                     ),
                   ),
-                  
-    
-                  # Table des gènes
-                  
-                  fluidRow(
-                    box(
-                      title = "Table", status = "primary", solidHeader = TRUE,
-                      collapsible = TRUE,
-                      width = 16,
-                      DT::dataTableOutput("gene_table", height = "25vh"),
-                      
-                      # Bouton pour télécharger le volcanoplot
-                      
-                      downloadButton("download_genetable", "Télécharger le tableau")
                     )
-                  )
+                  ), # fin side Layout
+                
+                # Table des gènes
+                
+                fluidRow(
+                  box(
+                    title = "Table", status = "primary", solidHeader = TRUE,
+                    collapsible = TRUE,
+                    width = 16,
+                    DT::dataTableOutput("gene_table", height = "25vh"),
+                    
+                    # Bouton pour télécharger le volcanoplot
+                    
+                    downloadButton("download_genetable", "Télécharger le tableau")
                 )
-              )
+              ) 
             )
       ),
       

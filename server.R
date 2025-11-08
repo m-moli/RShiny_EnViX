@@ -29,6 +29,7 @@ library(DT)
 server <- function(input, output) {
   
   inputData <- reactive({
+    
     inputFile <- input$file1
     if (is.null(inputFile)) {
       return(NULL)
@@ -49,16 +50,19 @@ server <- function(input, output) {
   # Variable réactive pour les gènes sélectionnés
   selected_genes <- reactiveVal(character(0))
   
-  # Mettre à jour quand l'utilisateur sélectionne dans le tableau
-  observeEvent(input$gene_table_rows_selected, {
+  # Mettre à jour quand la variable selected_genes
+  # quand l'utilisateur sélectionne dans le tableau
+  
+  observeEvent(input$gene_table_rows_selected, { # gene_table_rows_selected est automatiquement créée par DT
     data <- inputData()
     selected_genes(data$GeneName[input$gene_table_rows_selected])
   })
   
   # Bouton pour désélectionner tous les gènes
+  
   observeEvent(input$clear_selected_genes, {
-    DT::selectRows(DT::dataTableProxy("gene_table"), NULL)  # désélectionner tout
-    selected_genes(character(0))                            # vide la sélection
+    DT::selectRows(DT::dataTableProxy("gene_table"), NULL)  # désélectionner les lignes du tableau de gènes
+    selected_genes(character(0))                            # vider la sélection (variable selected_genes)
   })
 
   output$volcano_plot <- renderPlotly({
@@ -71,6 +75,7 @@ server <- function(input, output) {
     sig_down <- data$log2FC <= -input$log2FCslider & data$padj <= 10^(-input$pvalueslider)
     
     # Couleurs et labels
+    
     colors <- rep("grey", nrow(data))
     colors[sig_up] <- "darkviolet"
     colors[sig_down] <- "violet"
@@ -80,14 +85,36 @@ server <- function(input, output) {
       significant_labels[sig_up | sig_down] <- data$GeneName[sig_up | sig_down]
     }
     
-    # Gènes sélectionnés
+    # Gènes sélectionnés dans le tableau
+    
     sel_idx <- which(data$GeneName %in% selected_genes())
     if (length(sel_idx) > 0) {
       colors[sel_idx] <- "red"
       significant_labels[sel_idx] <- data$GeneName[sel_idx]
     }
     
-    # Plot
+    # Légende
+    
+    # Trace pour gènes up-significatifs
+    legend_up_genes <- list(
+      x = data$log2FC[sig_up],
+      y = yvals[sig_up],
+      type = "scatter", mode = "markers",
+      name = "Gènes sur-exprimés",
+      marker = list(color = "darkviolet", size = 10)
+    )
+    
+    # Trace pour gènes down-significatifs
+    legend_down_genes <- list(
+      x = data$log2FC[sig_down],
+      y = yvals[sig_down],
+      type = "scatter", mode = "markers",
+      name = "Gènes sous-exprimés",
+      marker = list(color = "violet", size = 10)
+    )
+    
+    # Tracer le volcanoPlot
+    
     plot_ly(
       x = ~data$log2FC,
       y = ~yvals,
@@ -97,10 +124,14 @@ server <- function(input, output) {
       text = significant_labels,
       hovertext = data$GeneName,
       textposition = "top center",
-      hoverinfo = "text+x+y"
+      hoverinfo = paste0(
+        "Gène: ", data$GeneName, "<br>",
+        "Log2FC: ", data$log2FC, "<br>",
+        "padj: ", data$padj
+      )
     ) %>%
       layout(
-        title = "Volcano Plot",
+        title = input$volcano_title,
         xaxis = list(title = "log2(Fold Change)"),
         yaxis = list(title = "-log10(padj)"),
         shapes = if (input$display_threshold_lines) {
