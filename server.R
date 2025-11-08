@@ -44,49 +44,47 @@ server <- function(input, output) {
       width = "100%"
     )
   })
-  
-  # -- Volcano plot --
-  
-  volcano_plot <- reactive({
+
+  output$volcano_plot <- renderPlotly({
+    
     data <- inputData()
-    if (is.null(data)) return(NULL)
     
-    # Définir les couleurs du plot
+    yvals <- -log10(data$padj)
+    sig_up <- data$log2FC >= input$log2FCslider & data$padj <= 10^(-input$pvalueslider)
+    sig_down <- data$log2FC <= -input$log2FCslider & data$padj <= 10^(-input$pvalueslider)
+    colors <- rep("grey", nrow(data))
+    colors[sig_up] <- "violet"
+    colors[sig_down] <- "pink"
     
-    colors_volcano_plot <- rep("grey", nrow(data))  # par défaut gris
-    colors_volcano_plot[data$log2FC >= input$log2FCslider & data$padj <= 10^(-input$pvalueslider)] <- "violet"  # up
-    colors_volcano_plot[data$log2FC <= -input$log2FCslider & data$padj <= 10^(-input$pvalueslider)] <- "pink" # down
-      
-    volcano <- ggplot(data, aes(x = log2FC, y = -log10(padj))) +
-      geom_vline(xintercept = c(-input$log2FCslider, input$log2FCslider), 
-                 linetype = "dashed", color = "purple") +
-      geom_hline(yintercept = input$pvalueslider, 
-                 linetype = "dashed", color = "purple") +
-      labs(
-        x = "log2(Fold Change)",
-        y = "-log10(padj)",
-        title = "Volcano Plot"
-      ) +
-      theme_minimal(base_size = 17)
-    
-    # Ajouter les points selon la checkbox "color_by_significant_genes"
-    if (input$color_by_significant_genes) {
-      volcano <- volcano + geom_point(alpha = 0.6, size = 1.5, color = colors_volcano_plot)
-    } else {
-      volcano <- volcano + geom_point(alpha = 0.6, size = 1.5, color = "grey")
-    }
-    
-    volcano
-    
-  })
-  
-  
-  
-  output$volcano_plot <- renderPlot({
-    volcano_plot()
-  })
-  
-  
+    plot_ly(
+      x = ~data$log2FC,
+      y = ~yvals,
+      type = "scatter",
+      mode = "markers",
+      marker = list(color = if (input$color_by_significant_genes) colors else "grey", size = 10),
+      text = if (input$display_significant_labels) ~data$GeneName,
+      hoverinfo = "text+x+y"
+    ) %>%
+      layout(
+        title = "Volcano Plot",
+        xaxis = list(title = "log2(Fold Change)"),
+        yaxis = list(title = "-log10(padj)"),
+        shapes = if (input$display_threshold_lines) {
+          list(
+            # Lignes verticales
+            list(type = "line", x0 = -input$log2FCslider, x1 = -input$log2FCslider,
+                 y0 = 0, y1 = max(yvals, na.rm = TRUE), line = list(dash = "dash", color = "purple")),
+            list(type = "line", x0 = input$log2FCslider, x1 = input$log2FCslider,
+                 y0 = 0, y1 = max(yvals, na.rm = TRUE), line = list(dash = "dash", color = "purple")),
+            # Ligne horizontale
+            list(type = "line", x0 = min(data$log2FC, na.rm = TRUE), x1 = max(data$log2FC, na.rm = TRUE),
+                 y0 = input$pvalueslider, y1 = input$pvalueslider,
+                 line = list(dash = "dash", color = "purple"))
+          )
+        }
+      )
+    })
+
   # -- Téléchargements --
   
   output$downloadData <- downloadHandler(

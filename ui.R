@@ -26,6 +26,8 @@ library(fresh)
 library(shinyBS)
 library(shinyWidgets)
 library(ggplot2)
+library(plotly)
+library(ggrepel)
 
 
 # Couleur de la thématique
@@ -223,6 +225,12 @@ ui <- dashboardPage(
                               "Afficher les seuils choisis sur le graphe",
                               TRUE),
                 
+                # Checkbox pour afficher les labels des gènes significatifs
+                
+                checkboxInput("display_significant_labels",
+                              "Afficher les étiquettes des gènes significatifs",
+                              TRUE),
+                
                 ),
                 
                 # Main Panel pour les graphiques et tables
@@ -234,7 +242,7 @@ ui <- dashboardPage(
                       title = "Plot1", status = "primary", solidHeader = TRUE,
                       collapsible = TRUE,
                       width = 16,
-                      plotOutput("volcano_plot",
+                      plotlyOutput("volcano_plot",
                                  width = "100%",
                                  height = "60vh"),
                       
