@@ -41,31 +41,53 @@ server <- function(input, output) {
       inputData(),
       options = list(scrollX = TRUE,
                      scrollY = "250px"),
+      selection = "multiple",
       width = "100%"
     )
+  })
+  
+  # Variable réactive pour les gènes sélectionnés
+  selected_genes <- reactiveVal(character(0))
+  
+  # Mettre à jour quand l'utilisateur sélectionne dans le tableau
+  observeEvent(input$gene_table_rows_selected, {
+    data <- inputData()
+    selected_genes(data$GeneName[input$gene_table_rows_selected])
+  })
+  
+  # Bouton pour désélectionner tous les gènes
+  observeEvent(input$clear_selected_genes, {
+    DT::selectRows(DT::dataTableProxy("gene_table"), NULL)  # désélectionner tout
+    selected_genes(character(0))                            # vide la sélection
   })
 
   output$volcano_plot <- renderPlotly({
     
     data <- inputData()
+    if (is.null(data)) return(NULL)
     
     yvals <- -log10(data$padj)
     sig_up <- data$log2FC >= input$log2FCslider & data$padj <= 10^(-input$pvalueslider)
     sig_down <- data$log2FC <= -input$log2FCslider & data$padj <= 10^(-input$pvalueslider)
     
-    # Récupérer les labels des gènes significatifs pour l'affichage du volcano plot
+    # Couleurs et labels
+    colors <- rep("grey", nrow(data))
+    colors[sig_up] <- "darkviolet"
+    colors[sig_down] <- "violet"
     
-    significant_labels <- if (input$display_significant_labels) {
-      ifelse(sig_up | sig_down, data$GeneName, "")
-    } else {
-      rep("", nrow(data))
+    significant_labels <- rep("", nrow(data))
+    if (input$display_significant_labels) {
+      significant_labels[sig_up | sig_down] <- data$GeneName[sig_up | sig_down]
     }
     
-    # Définir les couleurs des gènes significatifs
-    colors <- rep("grey", nrow(data))
-    colors[sig_up] <- "violet"
-    colors[sig_down] <- "pink"
+    # Gènes sélectionnés
+    sel_idx <- which(data$GeneName %in% selected_genes())
+    if (length(sel_idx) > 0) {
+      colors[sel_idx] <- "red"
+      significant_labels[sel_idx] <- data$GeneName[sel_idx]
+    }
     
+    # Plot
     plot_ly(
       x = ~data$log2FC,
       y = ~yvals,
@@ -82,33 +104,17 @@ server <- function(input, output) {
         xaxis = list(title = "log2(Fold Change)"),
         yaxis = list(title = "-log10(padj)"),
         shapes = if (input$display_threshold_lines) {
-          
           list(
-            # Lignes verticales
-            list(type = "line", 
-                 x0 = -input$log2FCslider, 
-                 x1 = -input$log2FCslider,
-                 y0 = 0, y1 = max(yvals, na.rm = TRUE), 
-                 line = list(dash = "dash", color = "purple")),
-            
-            list(type = "line", 
-                 x0 = input$log2FCslider, 
-                 x1 = input$log2FCslider,
-                 y0 = 0, 
-                 y1 = max(yvals, na.rm = TRUE), 
-                 line = list(dash = "dash", color = "purple")),
-            
-            # Ligne horizontale
-            list(type = "line", 
-                 x0 = min(data$log2FC, na.rm = TRUE), 
-                 x1 = max(data$log2FC, na.rm = TRUE),
-                 y0 = input$pvalueslider, 
-                 y1 = input$pvalueslider,
-                 line = list(dash = "dash", color = "purple"))
+            list(type = "line", x0 = -input$log2FCslider, x1 = -input$log2FCslider,
+                 y0 = 0, y1 = max(yvals, na.rm = TRUE), line = list(dash = "dash", color = "purple")),
+            list(type = "line", x0 = input$log2FCslider, x1 = input$log2FCslider,
+                 y0 = 0, y1 = max(yvals, na.rm = TRUE), line = list(dash = "dash", color = "purple")),
+            list(type = "line", x0 = min(data$log2FC, na.rm = TRUE), x1 = max(data$log2FC, na.rm = TRUE),
+                 y0 = input$pvalueslider, y1 = input$pvalueslider, line = list(dash = "dash", color = "purple"))
           )
         }
       )
-    })
+  })
 
   # -- Téléchargements --
   

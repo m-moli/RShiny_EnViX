@@ -31,11 +31,13 @@ library(ggrepel)
 
 
 # Couleur de la thématique
-my_theme = create_theme(
+main_theme = create_theme(
   adminlte_color(
-    light_blue = "#8806ce"
+    light_blue = "#8806ce",
+    red = "violet"
   )
 )
+
 
 # Définir UI pour l'application
 ui <- dashboardPage(
@@ -54,14 +56,16 @@ ui <- dashboardPage(
     
     sidebarMenu(
       
-      # Bouton d'acceuil
+      # Bouton d'accueil
+      
       menuItem(
-        "Acceuil", 
+        "Accueil", 
         tabName = "Home", 
         icon = icon("home")
       ),
       
       # Bouton pour parcourir et déposer un fichier
+      
       fileInput(
         inputId = "file1",
         label = HTML("<strong style='color: white ;'><i class='fa-regular fa-file'></i> Choisissez un fichier CSV :</strong>"),
@@ -72,6 +76,7 @@ ui <- dashboardPage(
       ),
       
       # Bouton pour le choix d'un organisme
+      
       selectInput( 
         inputId = "select", 
         label = HTML("<strong style='color: white ;'><i class='fa-solid fa-dna'></i> Choisissez un organisme :</strong>"),
@@ -79,24 +84,28 @@ ui <- dashboardPage(
       ), 
       
       # Caractéristique 1 ("Whole data inspection", par exemple)
+      
       menuItem(
         "Inspection générale", 
         tabName = "feature1", 
         icon = icon("th")),
       
       # Caractéristique 2
+      
       menuItem(
         "Caractéristique 2", 
         tabName = "feature2", 
         icon = icon("th")),
       
       # Caractéristique 3
+      
       menuItem(
         "Caractéristique 3", 
         tabName = "feature3", 
         icon = icon("th")),
       
       # Caractéristique 4
+      
       menuItem(
         "Caractéristique 4", 
         tabName = "feature4", 
@@ -105,11 +114,13 @@ ui <- dashboardPage(
   ),
   
   # Corps de l'application
+  
   dashboardBody(
     
-    use_theme(my_theme),
+    use_theme(main_theme),
     
     # Bouton d'information (avec le package shinyBS), sans nécessité de passer par server.R
+    
     bsModal("info_modal", "À propos", "info_button", size = "medium",
             p("Bienvenue sur cette app Shiny fabuleuse :)"),
             tags$ul(
@@ -121,8 +132,11 @@ ui <- dashboardPage(
     ),
     
     # Définir dans chaque caractéristique le contenu à afficher
+    
     tabItems(
+      
       # Caractéristique Acceuil, présentation du projet et explications des autres caractéristiques
+      
       tabItem(tabName= "Home",
               tags$div(
                 style = "display: flex; align-items: center;",
@@ -169,18 +183,9 @@ ui <- dashboardPage(
                 )
               )
       ),
-      
-      #################################
-      #################################
 
-      #################################
-      #################################
-      
-      
-      #################################
-      ############ TEST ###############
-      #################################
       tabItem(tabName = "feature1",
+              
               h2("Inspection générale des données"),
               
               # Utilisation de sidebarLayout
@@ -211,7 +216,11 @@ ui <- dashboardPage(
                               max = 5, 
                               value = 2.5, 
                               step = 0.1),
-
+                
+                # Personnalisation affichage du volcanoplot
+                
+                h4("Personnalisez le Volcano Plot"),
+                
                 # Checkbox pour colorier les gènes 'significatifs'
                 
                 checkboxInput("color_by_significant_genes",
@@ -231,15 +240,22 @@ ui <- dashboardPage(
                               "Afficher les étiquettes des gènes significatifs",
                               TRUE),
                 
+                actionButton(
+                  inputId = "clear_selected_genes",
+                  label = "Désélectionner les gènes du tableau",
+                  icon = icon("times-circle"),  # quelle icône choisir ?
+                  style = "margin-bottom: 10px; width: 100%;")
+                
                 ),
                 
                 # Main Panel pour les graphiques et tables
+                
                 mainPanel(
                   
                   # Volcano Plot
                   fluidRow(
                     box(
-                      title = "Plot1", status = "primary", solidHeader = TRUE,
+                      title = "Volcano Plot", status = "primary", solidHeader = TRUE,
                       collapsible = TRUE,
                       width = 16,
                       plotlyOutput("volcano_plot",
@@ -247,27 +263,30 @@ ui <- dashboardPage(
                                  height = "60vh"),
                       
                       # Bouton pour télécharger le volcanoplot
+                      
                       downloadButton("download_volcano", "Télécharger le plot PDF"),
                     ),
                   ),
                   
     
                   # Table des gènes
+                  
                   fluidRow(
                     box(
-                      title = "Table", status = "warning", solidHeader = TRUE,
+                      title = "Table", status = "primary", solidHeader = TRUE,
                       collapsible = TRUE,
                       width = 16,
-                      DT::dataTableOutput("gene_table", height = "25vh")
+                      DT::dataTableOutput("gene_table", height = "25vh"),
+                      
+                      # Bouton pour télécharger le volcanoplot
+                      
+                      downloadButton("download_genetable", "Télécharger le tableau")
                     )
                   )
                 )
               )
             )
       ),
-      #################################
-      ############ TEST ###############
-      #################################
       
       # Caractéristique 2
       tabItem(tabName = "feature2",
