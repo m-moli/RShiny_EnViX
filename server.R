@@ -70,6 +70,7 @@ server <- function(input, output) {
   # Tableau contenant uniquement les gènes significativement différentiellement exprimés
   
   output$gene_table_sig <- DT::renderDataTable({
+    
     data <- inputData()
     if (is.null(data)) return(NULL)
     
@@ -79,6 +80,23 @@ server <- function(input, output) {
     # Créer le tableau des gènes significatifs
     DT::datatable(
       data[sig_genes, , drop = FALSE],
+      options = list(scrollX = TRUE, scrollY = "250px"),
+      selection = "multiple",
+      width = "100%"
+    )
+  })
+  
+  # Tableau contenant uniquement les gènes sélectionnés par l'utilisateur
+  
+  output$gene_table_selected <- DT::renderDataTable({
+    
+    data <- inputData()
+    if (is.null(data)) return(NULL)
+
+    # Créer le tableau des gènes significatifs
+    
+    DT::datatable(
+      data[data$GeneName %in% selected_genes(), , drop = FALSE], # selected_genes a déjà été créée auparavant
       options = list(scrollX = TRUE, scrollY = "250px"),
       selection = "multiple",
       width = "100%"
