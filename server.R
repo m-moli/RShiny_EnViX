@@ -37,7 +37,9 @@ server <- function(input, output) {
     read.csv(inputFile$datapath, header = TRUE, sep=';')
   })
   
-  output$gene_table <- DT::renderDataTable({
+  # Tableau d'entrée contenant tous les gènes 
+  
+  output$gene_table_all <- DT::renderDataTable({
     DT::datatable(
       inputData(),
       options = list(scrollX = TRUE,
@@ -53,18 +55,38 @@ server <- function(input, output) {
   # Mettre à jour quand la variable selected_genes
   # quand l'utilisateur sélectionne dans le tableau
   
-  observeEvent(input$gene_table_rows_selected, { # gene_table_rows_selected est automatiquement créée par DT
+  observeEvent(input$gene_table_all_rows_selected, { # gene_table_all_rows_selected est automatiquement créée par DT
     data <- inputData()
-    selected_genes(data$GeneName[input$gene_table_rows_selected])
+    selected_genes(data$GeneName[input$gene_table_all_rows_selected])
   })
   
   # Bouton pour désélectionner tous les gènes
   
   observeEvent(input$clear_selected_genes, {
-    DT::selectRows(DT::dataTableProxy("gene_table"), NULL)  # désélectionner les lignes du tableau de gènes
+    DT::selectRows(DT::dataTableProxy("gene_table_all"), NULL)  # désélectionner les lignes du tableau de gènes
     selected_genes(character(0))                            # vider la sélection (variable selected_genes)
   })
-
+  
+  # Tableau contenant uniquement les gènes significativement différentiellement exprimés
+  
+  output$gene_table_sig <- DT::renderDataTable({
+    data <- inputData()
+    if (is.null(data)) return(NULL)
+    
+    # Filtrer les gènes significatifs
+    sig_genes <- abs(data$log2FC) >= input$log2FCslider & data$padj <= 10^(-input$pvalueslider)
+    
+    # Créer le tableau des gènes significatifs
+    DT::datatable(
+      data[sig_genes, , drop = FALSE],
+      options = list(scrollX = TRUE, scrollY = "250px"),
+      selection = "multiple",
+      width = "100%"
+    )
+  })
+  
+  # Tracer le Volcano Plot
+  
   output$volcano_plot <- renderPlotly({
     
     data <- inputData()

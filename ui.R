@@ -275,24 +275,26 @@ ui <- dashboardPage(
                       downloadButton("download_volcano", "Télécharger le plot PDF"),
                     ),
                   ),
-                    )
-                  ), # fin side Layout
+                  )
+                ), # fin side Layout
                 
                 # Table des gènes
                 
                 fluidRow(
                   box(
-                    title = "Table", status = "primary", solidHeader = TRUE,
+                    title = "Table des gènes", status = "primary", solidHeader = TRUE,
                     collapsible = TRUE,
                     width = 16,
-                    DT::dataTableOutput("gene_table", height = "25vh"),
                     
-                    # Bouton pour télécharger le volcanoplot
-                    
+                    tabsetPanel(
+                      tabPanel("Tous les gènes", DT::dataTableOutput("gene_table_all", height = "25vh")),
+                      tabPanel("Gènes significatifs", DT::dataTableOutput("gene_table_sig", height = "25vh")),
+                      tabPanel("Gènes sélectionnés", DT::dataTableOutput("gene_table_selected", height = "25vh"))
+                    ),
                     downloadButton("download_genetable", "Télécharger le tableau")
+                  ) 
                 )
-              ) 
-            )
+              )
       ),
       
       # Caractéristique 2
