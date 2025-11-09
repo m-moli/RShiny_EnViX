@@ -273,6 +273,7 @@ ui <- dashboardPage(
                       # Bouton pour télécharger le volcanoplot
                       
                       downloadButton("download_volcano", "Télécharger le plot PDF"),
+                      
                     ),
                   ),
                   )
@@ -286,13 +287,32 @@ ui <- dashboardPage(
                     collapsible = TRUE,
                     width = 16,
                     
-                    tabsetPanel(
-                      tabPanel("Tous les gènes", DT::dataTableOutput("gene_table_all", height = "25vh")),
-                      tabPanel("Gènes significatifs", DT::dataTableOutput("gene_table_sig", height = "25vh")),
-                      tabPanel("Gènes sélectionnés", DT::dataTableOutput("gene_table_selected", height = "25vh"))
-                    ),
-                    downloadButton("download_genetable", "Télécharger le tableau")
-                  ) 
+                    # tags$style(HTML('table.dataTable tr.selected td, table.dataTable td.selected {background-color: pink !important;}')),
+                    div(
+                      style = "display: flex; flex-direction: column; height: 40vh;", # hauteur totale du contenu
+                      div(
+                        tags$style(HTML("
+                          table.dataTable tbody tr:nth-child(odd) {
+                            background-color: #f3e8ff !important; # Encore un peu plus de violet pour les lignes impaires ;)
+                          }
+                          table.dataTable 
+                        ")),
+                        
+                        style = "flex: 1; overflow-y: auto;",
+                        tabsetPanel(
+                          id = "gene_table_tabs", 
+                          tabPanel("Tous les gènes", DT::dataTableOutput("gene_table_all", height = "25vh")),
+                          tabPanel("Gènes significatifs", DT::dataTableOutput("gene_table_sig", height = "25vh")),
+                          tabPanel("Gènes sélectionnés", DT::dataTableOutput("gene_table_selected", height = "25vh"))
+                        )
+                      ),
+                      div(
+                        style = "margin-top: auto; text-align: left;",
+                        downloadButton("download_gene_table", "Télécharger le tableau (csv)")
+                      )
+                    
+                    ) 
+                  )
                 )
               )
       ),

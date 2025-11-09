@@ -41,9 +41,14 @@ server <- function(input, output) {
   
   output$gene_table_all <- DT::renderDataTable({
     DT::datatable(
+      extensions = "Buttons",
       inputData(),
       options = list(scrollX = TRUE,
                      scrollY = "250px"),
+                     #  buttons = c('copy', 'csv', 'excel'))
+                     # dom = 'Bfrtip'), # C'est ça qui permet d'  afficher les boutons
+      
+      # class = "display",
       selection = "multiple",
       width = "100%"
     )
@@ -162,14 +167,13 @@ server <- function(input, output) {
       mode = "markers+text",
       marker = list(color = if (input$color_by_significant_genes) colors else "grey", size = 10),
       text = significant_labels,
-      hovertext = data$GeneName,
-      textposition = "top center",
-      hoverinfo = paste0(
+      hoverinfo = "text",
+      hovertext = paste0(
         "Gène: ", data$GeneName, "<br>",
         "Log2FC: ", data$log2FC, "<br>",
         "padj: ", data$padj
-      )
-    ) %>%
+      ),
+      textposition = "top center") %>%
       layout(
         title = input$volcano_title,
         xaxis = list(title = "log2(Fold Change)"),
@@ -189,20 +193,44 @@ server <- function(input, output) {
 
   # -- Téléchargements --
   
-  output$downloadData <- downloadHandler(
-    filename = "example.csv",
+  output$download_gene_table <- downloadHandler(
+    
+    filename = function() {
+      paste0("table_des_genes", ".csv")
+    },
     content = function(file) {
-      write.csv(mtcars, file)
+      
+      
+      # Vérifie quel onglet du tableau est actif
+      
+      active_tab <- input$gene_table_tabs
+      
+      # Choisit l'onglet correspondant
+      
+      if (active_tab == "Tous les gènes") {
+        data_to_download <- inputData()
+      } else if (active_tab == "Gènes significatifs") {
+        data <- inputData()
+        sig_genes <- abs(data$log2FC) >= input$log2FCslider & data$padj <= 10^(-input$pvalueslider)
+        data_to_download <- data[sig_genes, , drop = FALSE]
+      } else if (active_tab == "Gènes sélectionnés") {
+        data <- inputData()
+        data_to_download <- data[data$GeneName %in% selected_genes(), , drop = FALSE]
+      }
+      
+      write.csv(data_to_download, file, row.names = FALSE)
+      
     }
   )
   
   output$download_volcano <- downloadHandler(
-    filename = function() {
-      paste0("volcano-plot", ".pdf")
+    filename =  function() {
+      paste0("table_des_genes", ".csv")
     },
-    
     content = function(file) {
-      ggplot2::ggsave(file, reactive_volcano(), device = "pdf", width = 10, height = 5, units = "in")
+      png(file, width = 8, height = 6, units = "in", res = 300)
+      print(volcano_plot)
+      dev.off()
     }
   )
 }
