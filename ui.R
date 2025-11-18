@@ -18,6 +18,7 @@
 
 
 # Packages utilisés
+
 library(shiny)
 library(shinydashboard)
 library(bslib)
@@ -29,8 +30,10 @@ library(ggplot2)
 library(plotly)
 library(ggrepel)
 
+############################################
+# ====== Couleur de la thématique ======== #
+############################################
 
-# Couleur de la thématique
 main_theme = create_theme(
   adminlte_color(
     light_blue = "#8806ce",
@@ -38,25 +41,35 @@ main_theme = create_theme(
   )
 )
 
+###############################################
+# ====== Définir UI pour l'application ====== #
+###############################################
 
-# Définir UI pour l'application
 ui <- dashboardPage(
   
-  # Entête de l'application
+  #################################
+  # -- Entête de l'application -- #
+  #################################
+  
   header <- dashboardHeader(
     title = "EnViX",
     tags$li(
       class = "dropdown",
-      actionLink("info_button", icon("info-circle"), label = NULL)
+      actionLink("info_button", 
+                 icon("info-circle"), 
+                 label = NULL)
     )
   ),
   
-  # Menu latéral
+  #######################
+  # --  Menu latéral -- #
+  #######################
+  
   dashboardSidebar(
     
     sidebarMenu(
       
-      # Bouton d'accueil
+      # -- Bouton d'accueil -- #
       
       menuItem(
         "Accueil", 
@@ -64,7 +77,7 @@ ui <- dashboardPage(
         icon = icon("home")
       ),
       
-      # Bouton pour parcourir et déposer un fichier
+      # -- Bouton pour parcourir et déposer un fichier -- #
       
       fileInput(
         inputId = "file1",
@@ -75,7 +88,7 @@ ui <- dashboardPage(
         multiple = FALSE
       ),
       
-      # Bouton pour le choix d'un organisme
+      # -- Bouton pour le choix d'un organisme -- #
       
       selectInput( 
         inputId = "select", 
@@ -83,28 +96,28 @@ ui <- dashboardPage(
         list("Homo sapiens" = "1A", "Mus musculus" = "1B", "Arabidopsis thaliana" = "1C") 
       ), 
       
-      # Caractéristique 1 ("Whole data inspection", par exemple)
+      # -- Caractéristique 1 : Inspection générale des données -- #
       
       menuItem(
         "Inspection générale", 
         tabName = "feature1", 
         icon = icon("th")),
       
-      # Caractéristique 2
+      # -- Caractéristique 2 -- #
       
       menuItem(
         "Caractéristique 2", 
         tabName = "feature2", 
         icon = icon("th")),
       
-      # Caractéristique 3
+      # -- Caractéristique 3 -- #
       
       menuItem(
         "Caractéristique 3", 
         tabName = "feature3", 
         icon = icon("th")),
       
-      # Caractéristique 4
+      # -- Caractéristique 4 -- #
       
       menuItem(
         "Caractéristique 4", 
@@ -113,13 +126,16 @@ ui <- dashboardPage(
     )
   ),
   
-  # Corps de l'application
+  ################################
+  # -- Corps de l'application -- #
+  ################################ 
   
   dashboardBody(
     
     use_theme(main_theme),
     
-    # Bouton d'information (avec le package shinyBS), sans nécessité de passer par server.R
+    # -- Bouton d'information sur l'application (avec le package shinyBS) -- #
+    # -- sans nécessité de passer par server.R                            -- #
     
     bsModal("info_modal", "À propos", "info_button", size = "medium",
             p("Bienvenue sur cette app Shiny fabuleuse :)"),
@@ -131,11 +147,12 @@ ui <- dashboardPage(
             )
     ),
     
-    # Définir dans chaque caractéristique le contenu à afficher
+    # -- Définir dans chaque caractéristique le contenu à afficher -- # 
     
     tabItems(
       
-      # Caractéristique Acceuil, présentation du projet et explications des autres caractéristiques
+      # -- Caractéristique Acceuil, présentation du projet -- #
+      # -- explication des fonctionalités de l'application -- #
       
       tabItem(tabName= "Home",
               tags$div(
@@ -145,22 +162,30 @@ ui <- dashboardPage(
               ),
               h3("Bienvenue sur EnViX, l'appli qui donne envie :)"),
               tags$ul(
-                tags$li("L'objectif de ce projet est de construire une application Shiny pour des analyses en enrichissement fonctionnel."),
-                tags$li("Ce projet s'inscrit dans le cadre du Master de Bioinformatique, Modélisation et Statistiques de l'Université de Rouen Normandie."),
-                tags$li("Puisque les statistiques peuvent être un sujet polémique, notamment en bio, l'objectif de cette application est de rester transparent. 
-                    Cet onglet pourra alors contenir les explications sur le principe des méthodes d'analyse en enrichissement fonctionnel (ORA), (GSEA), ainsi que tous les tests statistiques associés."),
+                tags$li("L'objectif de ce projet est de construire une application
+                        Shiny pour des analyses en enrichissement fonctionnel."),
+                tags$li("Ce projet s'inscrit dans le cadre du Master de Bioinformatique, 
+                        Modélisation et Statistiques de l'Université de Rouen Normandie."),
+                tags$li("Puisque les statistiques peuvent être un sujet polémique, 
+                        notamment en bio, l'objectif de cette application est de rester transparent. 
+                        Cet onglet pourra alors contenir les explications sur le principe des
+                        méthodes d'analyse en enrichissement fonctionnel (ORA), 
+                        (GSEA), ainsi que tous les tests statistiques associés."),
               ),
               
               fluidRow(
                 box(
                   title = "Tutoriel rapide", status = "danger", solidHeader = TRUE,
                   collapsible = FALSE,
-                  p("Cette boîte pourrait contenir une vidéo qui fait le tour rapide des caractéristiques principales de l'application."),
+                  p("Cette boîte pourrait contenir une vidéo qui fait le tour 
+                    rapide des caractéristiques principales de l'application."),
                   width = 6
                 ),
                 
                 box(
-                  title = "Qu'est-ce que la Gene Set Enrichment Analysis (GSEA) ?", status = "warning", solidHeader = TRUE,
+                  title = "Qu'est-ce que la Gene Set Enrichment Analysis (GSEA) ?", 
+                  status = "warning", 
+                  solidHeader = TRUE,
                   collapsible = FALSE,
                   p("Expliquer ici le principe de cette méthode et les tests statistiques associés."),
                   width = 6
@@ -178,27 +203,34 @@ ui <- dashboardPage(
                 box(
                   title = "Correction des p-values ?", status = "warning", solidHeader = TRUE,
                   collapsible = FALSE,
-                  p("Les p-values... Mystérieuses, mais influencent l'interprétation du biologiste... Il faudra expliquer ici les différentes méthodes de correction utilisées dans l'application."),
+                  p("Les p-values... Mystérieuses, mais influencent l'interprétation du biologiste... 
+                    Il faudra expliquer ici les différentes méthodes de correction utilisées dans l'application."),
                   width = 6
                 )
               )
       ),
-
+      
+      # -- Caractéristique 1 : inspection générale des données -------------- #
+      # -- affichage d'un volcanoplot et d'un tableau du fichier csv input -- #
+      
       tabItem(tabName = "feature1",
               
               h2("Inspection générale des données"),
               
-              # Utilisation de sidebarLayout
+              # Utilisation de sidebarLayout pour avoir
+              #les paramètre du volcanoplot à gauche et le volcanoplot à droite
+              
               fluidPage(
                 
                 sidebarLayout(
           
-                # Side Panel contenant les contrôles
+                # Side Panel contenant les contrôles (paramètres) du volcanoplot
+                  
                 sidebarPanel(
                   
                   width = 3, # Largeur de la barre latérale
                   
-                  # Sliders pour les paramètres |log2FC| et p-value
+                  # Sliders pour les paramètres |log2FC| et adjusted p-value 
                   
                   h4("Choisissez les paramètres"),
                   
@@ -219,8 +251,9 @@ ui <- dashboardPage(
                               step = 0.1),
                 
                 # Personnalisation affichage du volcanoplot
+                
                 div(style = "border: 2px solid purple; border-radius: 8px; padding: 10px; background-color: #f8f0ff; margin-bottom: 10px;",
-                  h4("Personnalisez le Volcano Plot"),
+                    h4("Personnalisez le Volcano Plot"),
                   
                   # Checkbox pour afficher les seuils (|log2FC| et adjpval) sur le VolcanoPlot
                   
@@ -234,18 +267,22 @@ ui <- dashboardPage(
                                 "Colorier les gènes significatifs / sélectionnés",
                                 TRUE),
                   
-                  # Checkbox pour afficher les labels des gènes significatifs
+                  # Checkbox pour afficher les labels (noms) des gènes significatifs
                   
                   checkboxInput("display_significant_labels",
                                 "Afficher les étiquettes des gènes significatifs",
-                                TRUE),
+                                FALSE),
                 ),
+                
+                # Bouton d'action pour éliminer les gènes sélectionnés à partir du tableau
                 
                 actionButton(
                   inputId = "clear_selected_genes",
                   label = "Désélectionner les gènes du tableau",
                   icon = icon("times-circle"),  
                   style = "margin-bottom: 10px; width: 100%;"),
+                
+                # Zone de texte pour écrire le titre du volcanoplot
                 
                 textInput(
                   inputId = "volcano_title",
@@ -261,6 +298,7 @@ ui <- dashboardPage(
                   width = 9,
                   
                   # Volcano Plot
+                  
                   fluidRow(
                     box(
                       title = "Volcano Plot", status = "primary", solidHeader = TRUE,
@@ -272,14 +310,17 @@ ui <- dashboardPage(
                       
                       # Bouton pour télécharger le volcanoplot
                       
-                      downloadButton("download_volcano", "Télécharger le plot PDF"),
+                      downloadButton("download_volcano", "Télécharger en PDF"),
                       
                     ),
                   ),
                   )
-                ), # fin side Layout
+                ),
                 
                 # Table des gènes
+                # un onglet contenant tous les gènes (fichier csv input)
+                # un onglet contenant les gènes significatifs (seuils choisis pour le volcanoplot)
+                # un onglet contenant les gènes sélectionnés du premier onglet (sous-liste)
                 
                 fluidRow(
                   box(
@@ -287,7 +328,6 @@ ui <- dashboardPage(
                     collapsible = TRUE,
                     width = 16,
                     
-                    # tags$style(HTML('table.dataTable tr.selected td, table.dataTable td.selected {background-color: pink !important;}')),
                     div(
                       style = "display: flex; flex-direction: column; height: 40vh;", # hauteur totale du contenu
                       div(
@@ -317,17 +357,20 @@ ui <- dashboardPage(
               )
       ),
       
-      # Caractéristique 2
+      # -- Caractéristique 2 -- #
+      
       tabItem(tabName = "feature2",
               h2("Caractéristique 2")
       ),
       
-      # Caractéristique 3
+      # -- Caractéristique 3 -- #
+      
       tabItem(tabName = "feature3",
               h2("Caractéristique 3")
       ),
       
-      # Caractéristique 4
+      # -- Caractéristique 4 -- #
+      
       tabItem(tabName = "feature4",
               h2("Caractéristique 4")
       )
