@@ -17,8 +17,8 @@
 # Usage: l'application peut être exécutée en appuyant sur le boutton 'Run App' en haut de l'éditeur. Un README et un dépôt github seront créés pour le prochain rendu.
 ########################################
 
-library(shiny)
-library(DT)
+# library(shiny)
+# library(DT)
 
 
 # Définir la logique du server
