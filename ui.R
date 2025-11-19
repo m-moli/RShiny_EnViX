@@ -176,7 +176,7 @@ ui <- dashboardPage(
               
               fluidRow(
                 box(
-                  title = "Tutoriel rapide", status = "danger", solidHeader = TRUE,
+                  title = "Tutoriel rapide", status = "primary", solidHeader = TRUE,
                   collapsible = FALSE,
                   p("Cette boîte pourrait contenir une vidéo qui fait le tour 
                     rapide des caractéristiques principales de l'application."),
@@ -185,7 +185,7 @@ ui <- dashboardPage(
                 
                 box(
                   title = "Qu'est-ce que la Gene Set Enrichment Analysis (GSEA) ?", 
-                  status = "warning", 
+                  status = "primary", 
                   solidHeader = TRUE,
                   collapsible = FALSE,
                   p("Expliquer ici le principe de cette méthode et les tests statistiques associés."),
@@ -195,14 +195,14 @@ ui <- dashboardPage(
               
               fluidRow(
                 box(
-                  title = "Qu'est-ce que la Over Representation Analysis (ORA) ?", status = "warning", solidHeader = TRUE,
+                  title = "Qu'est-ce que la Over Representation Analysis (ORA) ?", status = "primary", solidHeader = TRUE,
                   collapsible = FALSE,
                   p("Expliquer ici le principe de cette méthode et les tests statistiques associés."),
                   width = 6
                 ),
                 
                 box(
-                  title = "Correction des p-values ?", status = "warning", solidHeader = TRUE,
+                  title = "Correction des p-values ?", status = "primary", solidHeader = TRUE,
                   collapsible = FALSE,
                   p("Les p-values... Mystérieuses, mais influencent l'interprétation du biologiste... 
                     Il faudra expliquer ici les différentes méthodes de correction utilisées dans l'application."),

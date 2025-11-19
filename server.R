@@ -177,6 +177,8 @@ server <- function(input, output) {
     }
     
     # Tracer le volcanoPlot
+    # Il est automatiquement téléchargeable avec plotly au format PNG
+    # (Pas besoin d'un bouton d'action)
     
     plot_ly(
       x = ~data$log2FC,
@@ -234,25 +236,11 @@ server <- function(input, output) {
         data_to_download <- data[sig_genes, , drop = FALSE]
       } else if (active_tab == "Gènes sélectionnés") {
         data <- inputData()
-        data_to_download <- data[data$GeneName %in% selected_genes(), , drop = FALSE]
+        data_to_download <- data[data$GeneName %in% selected_genes(), drop = FALSE]
       }
       
       write.csv(data_to_download, file, row.names = FALSE)
       
     }
   )
-  
-  # Télécharger le volcano_plot au format PDF
-  
-  # output$download_volcano <- downloadHandler(
-  #   filename =  function() {
-  #     paste0("table_des_genes", ".csv")
-  #   },
-  #   content = function(file) {
-  #     png(file, width = 8, height = 6, units = "in", res = 300)
-  #     print(volcano_plot)
-  #     dev.off()
-  #   }
-  # )
-
 }
