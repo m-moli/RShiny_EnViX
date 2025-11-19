@@ -14,7 +14,7 @@
 # Date: 09-10-2025
 # Description: premier rendu - EnViX - Enrichment Visual eXploration
 # Usage: l'application peut être exécutée en appuyant sur le boutton 'Run App' en haut de l'éditeur. 
-# Plus d'informations sur 
+# Plus d'informations sur https://github.com/m-moli/RShiny_EnViX.git
 ########################################
 
 
