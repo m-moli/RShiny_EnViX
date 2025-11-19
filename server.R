@@ -17,62 +17,97 @@
 # Usage: l'application peut être exécutée en appuyant sur le boutton 'Run App' en haut de l'éditeur. Un README et un dépôt github seront créés pour le prochain rendu.
 ########################################
 
-# library(shiny)
-# library(DT)
 
-
-# Définir la logique du server
-
-# Ce module permet à l'utilisateur de télécharger un jeu de données mtcars au format .CSV (dataset R intégré)
-# Ce jeu de données est donné à titre d'exemple, et sera remplacé dans un second temps par les résultats de l'analyse en enrichissement obtenus
+############################################
+# ========= Logique du serveur =========== #
+############################################
 
 server <- function(input, output) {
-  
+
+  # ---- Upload le fihcier CSV avec les obnnes colonnes ---- #
+  # ---- Cette fonction s'assure que le fichier est au ----- #
+  # ---- bon format et contient les bonnes colonnes. ------- #
+  # ---- Pour l'instant, les 6 colonnes du fichier donné --- #
+  # ---- en exemple sont nécessaires.  --------------------- #
+   
   inputData <- reactive({
     
-    inputFile <- input$file1
-    if (is.null(inputFile)) {
+    inputFile <- input$inputGeneFile
+    if (is.null(inputFile)) return(NULL)
+    
+    # Vérifier extension .csv 
+    
+    if (tools::file_ext(inputFile$name) != "csv") {
+      showNotification("Le fichier doit être au format .csv", type = "error")
       return(NULL)
     }
-    read.csv(inputFile$datapath, header = TRUE, sep=';')
+    
+    # Lecture du fichier
+    
+    df <- read.csv(inputFile$datapath, header = TRUE, sep = ';')
+    
+    # Colonnes obligatoires
+    
+    required_columns <- c("GeneName", "ID", "baseMean", "log2FC", "pval", "padj")
+    
+    # Vérification des colonnes
+    
+    if (!all(required_columns %in% colnames(df))) {
+      missing_columns <- setdiff(required_columns, colnames(df))
+      showNotification(
+        paste("Colonnes manquantes :", paste(missing_columns, collapse = ", ")),
+        type = "error"
+      )
+      return(NULL)
+    }
+    
+    return(df)
   })
   
-  # Tableau d'entrée contenant tous les gènes 
+  # --- Tableau d'entrée contenant tous les gènes --- #
   
   output$gene_table_all <- DT::renderDataTable({
+    
     DT::datatable(
+      
       extensions = "Buttons",
       inputData(),
       options = list(scrollX = TRUE,
                      scrollY = "250px"),
-                     #  buttons = c('copy', 'csv', 'excel'))
-                     # dom = 'Bfrtip'), # C'est ça qui permet d'  afficher les boutons
-      
-      # class = "display",
       selection = "multiple",
       width = "100%"
     )
   })
   
-  # Variable réactive pour les gènes sélectionnés
+  # ---- Variable réactive pour les gènes sélectionnés ----- #
+  # ---- Elle permettra de stocker les gènes sélectionnés  - #
+  # ---- à partir du tableau  ------------------------------ #
+  
   selected_genes <- reactiveVal(character(0))
   
-  # Mettre à jour quand la variable selected_genes
-  # quand l'utilisateur sélectionne dans le tableau
+  # ---- Mettre à jour quand la variable selected_genes ---- #
+  # ---- quand l'utilisateur sélectionne dans le tableau --- #
   
-  observeEvent(input$gene_table_all_rows_selected, { # gene_table_all_rows_selected est automatiquement créée par DT
-    data <- inputData()
-    selected_genes(data$GeneName[input$gene_table_all_rows_selected])
-  })
+  observeEvent(
+    input$gene_table_all_rows_selected, { # gene_table_all_rows_selected est automatiquement créée par DT
+      data <- inputData()
+      selected_genes(data$GeneName[input$gene_table_all_rows_selected])
+    }
+  )
   
-  # Bouton pour désélectionner tous les gènes
+  # ---- Bouton pour désélectionner à la fois tous les gènes ---- #
+  # ---- évite de devoir déselectionner un par un les gènes  ---- #
   
-  observeEvent(input$clear_selected_genes, {
-    DT::selectRows(DT::dataTableProxy("gene_table_all"), NULL)  # désélectionner les lignes du tableau de gènes
-    selected_genes(character(0))                            # vider la sélection (variable selected_genes)
-  })
+  observeEvent(
+    input$clear_selected_genes, {
+      DT::selectRows(DT::dataTableProxy("gene_table_all"), NULL)  # désélectionner les lignes du tableau de gènes
+      selected_genes(character(0))                            # vider la sélection (variable selected_genes)
+    }
+  )
   
-  # Tableau contenant uniquement les gènes significativement différentiellement exprimés
+  # ---- Tableau contenant uniquement les gènes significatifs --- #
+  # ---- Permet à l'utilisateur de regrouper les gènes ---------- #
+  # ---- significatifs en un seul tableau (téléchargeable) ------ #
   
   output$gene_table_sig <- DT::renderDataTable({
     
@@ -80,9 +115,11 @@ server <- function(input, output) {
     if (is.null(data)) return(NULL)
     
     # Filtrer les gènes significatifs
+    
     sig_genes <- abs(data$log2FC) >= input$log2FCslider & data$padj <= 10^(-input$pvalueslider)
     
     # Créer le tableau des gènes significatifs
+    
     DT::datatable(
       data[sig_genes, , drop = FALSE],
       options = list(scrollX = TRUE, scrollY = "250px"),
@@ -91,14 +128,15 @@ server <- function(input, output) {
     )
   })
   
-  # Tableau contenant uniquement les gènes sélectionnés par l'utilisateur
+  # ---- Tableau contenant uniquement les gènes sélectionnés par l'utilisateur ---- #
+  # ---- à partir du tableau contenant tous les gènes ----------------------------- #
   
   output$gene_table_selected <- DT::renderDataTable({
     
     data <- inputData()
     if (is.null(data)) return(NULL)
 
-    # Créer le tableau des gènes significatifs
+    # Créer le tableau des gènes sélectionnés
     
     DT::datatable(
       data[data$GeneName %in% selected_genes(), , drop = FALSE], # selected_genes a déjà été créée auparavant
@@ -108,8 +146,8 @@ server <- function(input, output) {
     )
   })
   
-  # Tracer le Volcano Plot
-  
+  # ---- Tracer le Volcano Plot interactif ---- #
+
   output$volcano_plot <- renderPlotly({
     
     data <- inputData()
@@ -121,11 +159,11 @@ server <- function(input, output) {
     
     # Couleurs et labels
     
-    colors <- rep("grey", nrow(data))
+    colors <- rep("grey", nrow(data)) # les gènes non significatifs seront gris
     colors[sig_up] <- "darkviolet"
     colors[sig_down] <- "violet"
     
-    significant_labels <- rep("", nrow(data))
+    significant_labels <- rep("", nrow(data)) # n'afficher que les noms des gènes significatifs
     if (input$display_significant_labels) {
       significant_labels[sig_up | sig_down] <- data$GeneName[sig_up | sig_down]
     }
@@ -138,26 +176,6 @@ server <- function(input, output) {
       significant_labels[sel_idx] <- data$GeneName[sel_idx]
     }
     
-    # Légende
-    
-    # Trace pour gènes up-significatifs
-    legend_up_genes <- list(
-      x = data$log2FC[sig_up],
-      y = yvals[sig_up],
-      type = "scatter", mode = "markers",
-      name = "Gènes sur-exprimés",
-      marker = list(color = "darkviolet", size = 10)
-    )
-    
-    # Trace pour gènes down-significatifs
-    legend_down_genes <- list(
-      x = data$log2FC[sig_down],
-      y = yvals[sig_down],
-      type = "scatter", mode = "markers",
-      name = "Gènes sous-exprimés",
-      marker = list(color = "violet", size = 10)
-    )
-    
     # Tracer le volcanoPlot
     
     plot_ly(
@@ -168,7 +186,7 @@ server <- function(input, output) {
       marker = list(color = if (input$color_by_significant_genes) colors else "grey", size = 10),
       text = significant_labels,
       hoverinfo = "text",
-      hovertext = paste0(
+      hovertext = paste0( # affichage du gène quand le curseur passe sur un point du volcanoplot
         "Gène: ", data$GeneName, "<br>",
         "Log2FC: ", data$log2FC, "<br>",
         "padj: ", data$padj
@@ -178,7 +196,7 @@ server <- function(input, output) {
         title = input$volcano_title,
         xaxis = list(title = "log2(Fold Change)"),
         yaxis = list(title = "-log10(padj)"),
-        shapes = if (input$display_threshold_lines) {
+        shapes = if (input$display_threshold_lines) { # affichage intéractif des seuils choisis pour log2FC et adjpval 
           list(
             list(type = "line", x0 = -input$log2FCslider, x1 = -input$log2FCslider,
                  y0 = 0, y1 = max(yvals, na.rm = TRUE), line = list(dash = "dash", color = "purple")),
@@ -191,7 +209,9 @@ server <- function(input, output) {
       )
   })
 
-  # -- Téléchargements --
+  # ---- Téléchargements ---- #
+  
+  # Télécharger le(s) tableau(x) de gènes
   
   output$download_gene_table <- downloadHandler(
     
@@ -200,12 +220,11 @@ server <- function(input, output) {
     },
     content = function(file) {
       
-      
-      # Vérifie quel onglet du tableau est actif
+      # Vérifie quel onglet du tableau est actif pour le télécharger
       
       active_tab <- input$gene_table_tabs
       
-      # Choisit l'onglet correspondant
+      # Choisir l'onglet correspondant
       
       if (active_tab == "Tous les gènes") {
         data_to_download <- inputData()
@@ -223,14 +242,17 @@ server <- function(input, output) {
     }
   )
   
-  output$download_volcano <- downloadHandler(
-    filename =  function() {
-      paste0("table_des_genes", ".csv")
-    },
-    content = function(file) {
-      png(file, width = 8, height = 6, units = "in", res = 300)
-      print(volcano_plot)
-      dev.off()
-    }
-  )
+  # Télécharger le volcano_plot au format PDF
+  
+  # output$download_volcano <- downloadHandler(
+  #   filename =  function() {
+  #     paste0("table_des_genes", ".csv")
+  #   },
+  #   content = function(file) {
+  #     png(file, width = 8, height = 6, units = "in", res = 300)
+  #     print(volcano_plot)
+  #     dev.off()
+  #   }
+  # )
+
 }

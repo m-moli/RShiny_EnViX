@@ -13,7 +13,8 @@
 # Affiliation: master 2.1 BIMS, Université de Rouen Normandie
 # Date: 09-10-2025
 # Description: premier rendu - EnViX - Enrichment Visual eXploration
-# Usage: l'application peut être exécutée en appuyant sur le boutton 'Run App' en haut de l'éditeur. Un README et un dépôt github seront créés pour le prochain rendu.
+# Usage: l'application peut être exécutée en appuyant sur le boutton 'Run App' en haut de l'éditeur. 
+# Plus d'informations sur 
 ########################################
 
 
@@ -80,7 +81,7 @@ ui <- dashboardPage(
       # -- Bouton pour parcourir et déposer un fichier -- #
       
       fileInput(
-        inputId = "file1",
+        inputId = "inputGeneFile",
         label = HTML("<strong style='color: white ;'><i class='fa-regular fa-file'></i> Choisissez un fichier CSV :</strong>"),
         buttonLabel = "Parcourir...",
         placeholder = "Aucun fichier sélectionné",
@@ -101,23 +102,23 @@ ui <- dashboardPage(
       menuItem(
         "Inspection générale", 
         tabName = "feature1", 
-        icon = icon("th")),
+        icon = icon("eye")),
       
-      # -- Caractéristique 2 -- #
-      
-      menuItem(
-        "Caractéristique 2", 
-        tabName = "feature2", 
-        icon = icon("th")),
-      
-      # -- Caractéristique 3 -- #
+      # -- Caractéristique 2 : Enrichissement termes GO -- #
       
       menuItem(
-        "Caractéristique 3", 
-        tabName = "feature3", 
-        icon = icon("th")),
+        "Termes GO", 
+        tabName = "go_term_enrichment_feat", 
+        icon = icon("sitemap")),
       
-      # -- Caractéristique 4 -- #
+      # -- Caractéristique 3 : Enrichissement voies KEGG -- #
+      
+      menuItem(
+        "Voies KEGG", 
+        tabName = "kegg_pathway_enrichment_feat", 
+        icon = icon("pie-chart")),
+      
+      # -- Caractéristique 4 : à définir -- #
       
       menuItem(
         "Caractéristique 4", 
@@ -308,10 +309,6 @@ ui <- dashboardPage(
                                  width = "100%",
                                  height = "60vh"),
                       
-                      # Bouton pour télécharger le volcanoplot
-                      
-                      downloadButton("download_volcano", "Télécharger en PDF"),
-                      
                     ),
                   ),
                   )
@@ -359,14 +356,16 @@ ui <- dashboardPage(
       
       # -- Caractéristique 2 -- #
       
-      tabItem(tabName = "feature2",
-              h2("Caractéristique 2")
+      tabItem(
+        tabName = "go_term_enrichment_feat",
+        h2("Enrichissement termes GO")
       ),
       
       # -- Caractéristique 3 -- #
       
-      tabItem(tabName = "feature3",
-              h2("Caractéristique 3")
+      tabItem(tabName = "kegg_pathway_enrichment_feat",
+              # icon = icon("pie-chart", lib = "fa"),
+              h2("Enrichissement voies KEGG")
       ),
       
       # -- Caractéristique 4 -- #
