@@ -12,7 +12,7 @@
 # Author: Miquel MOLI GONZALEZ
 # Affiliation: master 2.1 BIMS, Université de Rouen Normandie
 # Date: 09-10-2025
-# Description: premier rendu - EnViX - Enrichment Visual eXploration
+# Description: deuxième rendu - EnViX - Enrichment Visual eXploration
 # Usage: l'application peut être exécutée en appuyant sur le boutton 'Run App' en haut de l'éditeur. 
 # Plus d'informations sur https://github.com/m-moli/RShiny_EnViX.git
 ########################################
@@ -27,9 +27,7 @@ library(DT)
 library(fresh)
 library(shinyBS)
 library(shinyWidgets)
-library(ggplot2)
 library(plotly)
-library(ggrepel)
 
 ############################################
 # ====== Couleur de la thématique ======== #

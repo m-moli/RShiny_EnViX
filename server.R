@@ -13,7 +13,7 @@
 # Author: Miquel MOLI GONZALEZ
 # Affiliation: master 2.1 BIMS, Université de Rouen Normandie
 # Date: 09-10-2025
-# Description: premier rendu - EnViX - Enrichment Visual eXploration
+# Description: deuxièmz rendu - EnViX - Enrichment Visual eXploration
 # Usage: l'application peut être exécutée en appuyant sur le boutton 'Run App' en haut de l'éditeur. 
 # Plus d'informations sur https://github.com/m-moli/RShiny_EnViX.git
 ########################################
@@ -25,7 +25,7 @@
 
 server <- function(input, output) {
 
-  # ---- Upload le fihcier CSV avec les obnnes colonnes ---- #
+  # ---- Upload le fihcier CSV avec les bonnes colonnes ---- #
   # ---- Cette fonction s'assure que le fichier est au ----- #
   # ---- bon format et contient les bonnes colonnes. ------- #
   # ---- Pour l'instant, les 6 colonnes du fichier donné --- #
